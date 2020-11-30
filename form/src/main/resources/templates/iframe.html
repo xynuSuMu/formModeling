@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="http://lib.sinaapp.com/js/jquery/1.7.2/jquery.min.js"></script>
+<body>
+<p>
+<div id="myFormTable" disable></div>
+</p>
+</body>
+<script type="text/javascript">
+    $.get("http://127.0.0.1:8088/form/getForm/3", function (data) {
+        $("#myFormTable").html(data);
+        //获取表单内容
+        $.get("http://127.0.0.1:8088/form/getFormValue", function (data) {
+            console.log(data)
+            for (var key in data) {
+                //遍历对象属性
+                console.log(key)
+                //遍历对象属性值
+                console.log(data[key])
+                $("#" + key).val(data[key]);
+                //radio
+                $("input[name=" + key + "][value=" + data[key] + "]").attr("checked", true);
+
+            }
+        });
+    });
+</script>
+</html>
