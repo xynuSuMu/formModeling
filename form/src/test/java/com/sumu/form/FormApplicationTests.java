@@ -12,6 +12,7 @@ import com.sumu.form.bean.vo.FieldView;
 import com.sumu.form.bean.vo.FormTableView;
 import com.sumu.form.enume.FieldType;
 import com.sumu.form.mapper.FormMapper;
+import com.sumu.form.service.FormService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,11 +29,14 @@ class FormApplicationTests {
     @Autowired
     private FormMapper formMapper;
 
+    @Autowired
+    private FormService formService;
+
     //删除表单
     @Test
     void deleteForm() {
         FormTableView param = param();
-        formMapper.dropTable(param.getTableName());
+        formService.deleteFormTable(param.getTableName());
     }
 
     //创建表单
