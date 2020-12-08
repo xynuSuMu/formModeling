@@ -30,7 +30,7 @@ import java.util.Map;
 @Service
 public class FormServiceImpl implements FormService {
 
-    @Autowired
+//    @Autowired
     private FormMapper formMapper;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
