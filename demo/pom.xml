@@ -32,8 +32,8 @@
 
         <dependency>
             <groupId>com.sumu</groupId>
-            <artifactId>form</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <artifactId>form-modeling-starter</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

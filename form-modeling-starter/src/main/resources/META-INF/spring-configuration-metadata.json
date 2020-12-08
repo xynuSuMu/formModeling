@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "spring.form.modeling.init.table",
+      "type": "java.lang.Boolean",
+      "description": "init table",
+      "defaultValue": "false"
+    }
+  ]
+}
