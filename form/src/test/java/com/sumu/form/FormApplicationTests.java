@@ -117,22 +117,6 @@ class FormApplicationTests {
         System.out.println(JSONObject.toJSONString(list));
     }
 
-    //表单布局
-    @Test
-    void addLayout() {
-        String tableName = param().getTableName();
-        StringBuffer sb = fromStyle();
-        String formName = "Custom_Verification_Style_1";
-        String formDesc = "核销流程ONE";
-        //todo:¬表单字段属性
-        List<FormRuleDo> formRuleDos = fromFieldRule();
-        //表单字段属性
-        formMapper.insertFormTableStyle(formRuleDos);
-        //表单样式
-        formMapper.insertFormTable(formName, formDesc, tableName, sb.toString());
-
-    }
-
     //提交表单
     @Test
     void submitFormTable() {
@@ -238,66 +222,5 @@ class FormApplicationTests {
         return formTableView;
     }
 
-    //模拟表单样式
-    public StringBuffer fromStyle() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<!DOCTYPE html>");
-        sb.append("<html lang=\"en\">");
-        sb.append("<head>");
-        sb.append("<meta charset=\"UTF - 8\">");
-        sb.append("<title>Title</title>");
-        sb.append("</head>");
-        sb.append("<body>");
-        sb.append("<script>");
-        sb.append("function hello() {");
-        sb.append("console.log(\"1111xxxx\")");
-        sb.append("}");
-        sb.append("</script>");
-        sb.append("<div>");
-        sb.append("<label>金额</label>");
-        sb.append("<input type=\"number\" disabled = true  id=\"field_account\" name=\"金额\">");
-        sb.append("</div>");
-        sb.append("<div>");
-        sb.append("<label>理由</label>");
-        sb.append("<input type=\"text\" id=\"field_desc\" name=\"金额\">");
-        sb.append("</div>");
-        sb.append("<div>");
-        sb.append("<label>是否发票</label>");
-        sb.append("<input type=\"radio\" name=\"field_invoice\" value=\"0\">是");
-        sb.append("<input type=\"radio\" name=\"field_invoice\" value=\"1\">否");
-        sb.append("</div>");
-        sb.append("<button onclick=\"hello()\">提交</button>");
-        sb.append(" </body>");
-        sb.append("</html>");
-        return sb;
-    }
-
-    //表单字段属性
-    public List<FormRuleDo> fromFieldRule() {
-        List<FormRuleDo> res = new ArrayList<>();
-        String formKey = "form_custom_verification";
-        FormRuleDo fieldAccount = new FormRuleDo();
-        fieldAccount.setTableName(formKey);
-        fieldAccount.setHtmlName("Custom_Verification_Style_1");
-        fieldAccount.setFieldKey("field_account");
-        fieldAccount.setRequired(true);
-        fieldAccount.setEdit(true);
-        res.add(fieldAccount);
-        FormRuleDo fieldDesc = new FormRuleDo();
-        fieldDesc.setTableName(formKey);
-        fieldDesc.setHtmlName("Custom_Verification_Style_1");
-        fieldDesc.setFieldKey("field_desc");
-        fieldDesc.setRequired(true);
-        fieldDesc.setEdit(true);
-        res.add(fieldDesc);
-        FormRuleDo fieldVolice = new FormRuleDo();
-        fieldVolice.setTableName(formKey);
-        fieldVolice.setHtmlName("Custom_Verification_Style_1");
-        fieldVolice.setFieldKey("field_invoice");
-        fieldVolice.setRequired(true);
-        fieldVolice.setEdit(true);
-        res.add(fieldVolice);
-        return res;
-    }
 
 }

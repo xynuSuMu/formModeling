@@ -89,6 +89,6 @@ public class FormConfigurationImpl extends FormConfiguration {
     }
 
     protected void initDataManager() {
-        DataManager.setFormMapper(this.sqlSession.getMapper(FormMapper.class));
+        DataManager.setFormMapper(this.sqlSession.getMapper(FormMapper.class), this.sqlSession);
     }
 }
