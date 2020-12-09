@@ -1,33 +1,35 @@
 package com.sumu.form;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import com.sumu.form.config.SpringFormConfiguration;
+import com.sumu.form.engine.FormEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
 
 /**
  * @author 陈龙
  * @version 1.0
  * @date 2020-12-08 10:56
  */
-public class FormManager implements ApplicationContextAware {
+public class FormManager {
 
-    private ApplicationContext applicationContext;
+    private Logger LOG = LoggerFactory.getLogger(FormManager.class);
 
+    private SpringFormConfiguration springFormConfiguration;
 
-    public FormManager() {
-        System.out.println("加载FormManager========");
+    public FormManager(DataSource dataSource) {
+        this.springFormConfiguration = new SpringFormConfiguration(dataSource);
+
     }
 
     public void init() {
-        System.out.println("初始化");
+        LOG.info("Form Modeling Init...");
+        springFormConfiguration.builder();
+        LOG.info("Form Modeling Start");
     }
 
     public void destroy() {
-
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        LOG.info("Form Modeling Stop");
     }
 }

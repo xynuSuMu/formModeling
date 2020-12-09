@@ -9,12 +9,11 @@ import com.sumu.form.bean.modal.FieldModal;
 import com.sumu.form.bean.vo.ComponentView;
 import com.sumu.form.bean.vo.FieldView;
 import com.sumu.form.bean.vo.FormTableView;
+import com.sumu.form.entity.data.DataManager;
 import com.sumu.form.enume.FieldType;
-import com.sumu.form.mapper.FormMapper;
 import com.sumu.form.service.FormService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,15 +29,12 @@ import java.util.Map;
 @Service
 public class FormServiceImpl implements FormService {
 
-//    @Autowired
-    private FormMapper formMapper;
-
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     @Override
     public Boolean deleteFormTable(String tableName) {
-        formMapper.dropTable(tableName);
+        DataManager.getFormMapper().dropTable(tableName);
         return true;
     }
 
@@ -46,7 +42,7 @@ public class FormServiceImpl implements FormService {
     public Boolean createFormTable(FormTableView formTableView) {
         FormTableView param = formTableView;
         //创建
-        String table = formMapper.isExistForm(param.getTableName());
+        String table = DataManager.getFormMapper().isExistForm(param.getTableName());
         if (table == null) {
             List<FormDo> cloums = new ArrayList<>();
             List<AttributeDo> list = new ArrayList<>();
@@ -90,13 +86,13 @@ public class FormServiceImpl implements FormService {
                 list.add(attributeDo);
             }
             //表单信息
-            formMapper.insertFormInfo(param.getTableName(), param.getTableDesc());
+            DataManager.getFormMapper().insertFormInfo(param.getTableName(), param.getTableDesc());
             //字段信息
-            formMapper.insertAttribute(list);
+            DataManager.getFormMapper().insertAttribute(list);
             //组件信息
-            formMapper.insertComponent(componentDos);
+            DataManager.getFormMapper().insertComponent(componentDos);
             //创建物理表单
-            formMapper.createForm(param.getTableName(), cloums, param.getTableDesc());
+            DataManager.getFormMapper().createForm(param.getTableName(), cloums, param.getTableDesc());
             return true;
         } else {
             logger.info("表单存在，请删除");
@@ -107,12 +103,12 @@ public class FormServiceImpl implements FormService {
 
     @Override
     public List<FieldModal> getFieldModal(String tableName) {
-        List<FieldModal> list = formMapper.getFormFieldInfo(tableName);
+        List<FieldModal> list = DataManager.getFormMapper().getFormFieldInfo(tableName);
         for (FieldModal fieldModal : list) {
             FieldType.Relation relation = FieldType.Relation.getRelation(fieldModal.getFieldType());
             if (relation.getComponent()) {
                 fieldModal.setComponentModals(
-                        formMapper.getFieldComponentInfo(tableName,
+                        DataManager.getFormMapper().getFieldComponentInfo(tableName,
                                 fieldModal.getFieldKey()));
             }
         }
@@ -124,9 +120,9 @@ public class FormServiceImpl implements FormService {
     public Boolean saveFormTableStyle(String tableName, String formName, String formDesc, String html, List<FormRuleDo> formRuleDos) {
 
         //表单字段属性
-        formMapper.insertFormTableStyle(formRuleDos);
+        DataManager.getFormMapper().insertFormTableStyle(formRuleDos);
         //表单样式
-        formMapper.insertFormTable(formName, formDesc, tableName, html);
+        DataManager.getFormMapper().insertFormTable(formName, formDesc, tableName, html);
 
         return true;
     }
@@ -138,7 +134,7 @@ public class FormServiceImpl implements FormService {
                                    Map<String, Object> fieldValue) {
         Map<String, Object> columnMap = new HashMap<>();
         //校验该表单
-        List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
+        List<FormRuleDo> formRuleDos = DataManager.getFormMapper().getFormRule(formName);
         System.out.println(JSONObject.toJSONString(formRuleDos));
         for (FormRuleDo formRuleDo : formRuleDos) {
             Boolean isRequired = formRuleDo.getRequired();
@@ -155,17 +151,17 @@ public class FormServiceImpl implements FormService {
         }
         columnMap.put("sys_service_id", sysServiceId);
         //插入数据
-        formMapper.insertForm(tableName, columnMap);
+        DataManager.getFormMapper().insertForm(tableName, columnMap);
 
         return true;
     }
 
     @Override
     public Map<String, Object> getFormFieldValue(String tableName, String formName, String sysServiceId) {
-        Map<String, Object> map = formMapper.getFieldValue(tableName, sysServiceId);
+        Map<String, Object> map = DataManager.getFormMapper().getFieldValue(tableName, sysServiceId);
         System.out.println(map.toString());
         //该表单保存的字段
-        List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
+        List<FormRuleDo> formRuleDos = DataManager.getFormMapper().getFormRule(formName);
         Map<String, Object> mapRes = new HashMap<>();
         for (FormRuleDo formRuleDo : formRuleDos) {
             if (map.containsKey(formRuleDo.getFieldKey())) {

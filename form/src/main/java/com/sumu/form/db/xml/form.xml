@@ -89,12 +89,12 @@
 
     <!--删除表单-->
     <update id="dropTable">
-        drop table if exists ${tableName};
         delete from form_sys_field_info where `table_name` = #{tableName};
         delete from form_sys_component where `table_name` = #{tableName};
         delete from form_sys_table_info where `table_name` = #{tableName};
         delete from form_sys_html where `table_name` = #{tableName};
         delete from form_sys_html_rule where `table_name` = #{tableName};
+        drop table if exists ${tableName};
     </update>
 
     <select id="getFormFieldInfo" resultMap="field">

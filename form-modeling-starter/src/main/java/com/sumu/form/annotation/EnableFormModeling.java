@@ -1,6 +1,5 @@
 package com.sumu.form.annotation;
 
-import com.sumu.form.config.DBConfig;
 import com.sumu.form.config.FormModelingConfig;
 import org.springframework.context.annotation.Import;
 
@@ -14,6 +13,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({FormModelingConfig.class, DBConfig.class})
+@Import({FormModelingConfig.class})
 public @interface EnableFormModeling {
 }
