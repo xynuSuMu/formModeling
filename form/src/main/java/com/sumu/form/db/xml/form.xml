@@ -3,6 +3,67 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sumu.form.mapper.FormMapper">
 
+    <update id="initTable">
+
+        create table if not exists `form_sys_component` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `table_name` varchar(100) NOT NULL DEFAULT '' COMMENT '表名称',
+        `field_key` varchar(100) NOT NULL DEFAULT '' COMMENT '字段名称',
+        `select_key` varchar(100) NOT NULL DEFAULT '' COMMENT '组件对应的key',
+        `select_value` varchar(100) NOT NULL DEFAULT '' COMMENT '组件对应的value',
+        `select_sort` int(3) NOT NULL COMMENT '组件的排序',
+        PRIMARY KEY (`id`),
+        KEY `index_name_key` (`table_name`,`field_key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统组件数据';
+
+        create table if not exists `form_sys_field_info` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `table_name` varchar(100) DEFAULT '' COMMENT '表名称',
+        `field_key` varchar(100) DEFAULT NULL COMMENT '字段名称',
+        `field_type` varchar(100) DEFAULT NULL COMMENT '类型',
+        `field_name` varchar(100) DEFAULT NULL COMMENT '字段名称',
+        `scope_value` varchar(100) DEFAULT NULL COMMENT '值范围',
+        `required` tinyint(1) DEFAULT NULL COMMENT '是否必填',
+        PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='表单字段信息';
+
+        create table if not exists `form_sys_html` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `html_name` varchar(100) NOT NULL DEFAULT '' COMMENT '表单名称',
+        `table_name` varchar(100) NOT NULL DEFAULT '' COMMENT '表名',
+        `html_desc` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
+        `field_html` longtext NOT NULL COMMENT 'html表单',
+        `date_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '数据创建时间',
+        `date_update` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '数据更新时间',
+        `date_delete` timestamp NULL DEFAULT NULL COMMENT '数据删除时间',
+        PRIMARY KEY (`id`),
+        KEY `index_name_key` (`table_name`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='保存表单';
+
+        create table if not exists `form_sys_html_rule` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `table_name` varchar(100) NOT NULL DEFAULT '' COMMENT '表名',
+        `html_name` varchar(100) NOT NULL DEFAULT '' COMMENT '表单样式ID',
+        `field_key` varchar(100) NOT NULL DEFAULT '' COMMENT '字段名称',
+        `required` tinyint(1) DEFAULT NULL COMMENT '是否必填',
+        `edit` tinyint(1) DEFAULT NULL COMMENT '是否可编辑',
+        `date_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '数据创建时间',
+        `date_update` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '数据更新时间',
+        `date_delete` timestamp NULL DEFAULT NULL COMMENT '数据删除时间',
+        PRIMARY KEY (`id`),
+        KEY `index_name_key` (`table_name`),
+        KEY `index_html_id` (`html_name`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每种表单样式的字段规则';
+
+
+        create table if not exists `form_sys_table_info` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+        `table_name` longtext NOT NULL COMMENT '表名称',
+        `table_desc` varchar(100) NOT NULL DEFAULT '' COMMENT '表单描述',
+        PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    </update>
     <!--表单信息-->
     <insert id="insertFormInfo" parameterType="com.sumu.form.bean.domin.AttributeDo">
         insert into form_sys_table_info(`table_name`,`table_desc`)
@@ -33,6 +94,7 @@
     <select id="isExistForm" resultType="java.lang.String">
         SELECT `table_name` FROM information_schema.TABLES WHERE table_name = #{tableName};
     </select>
+
 
     <!--创建表单-->
     <update id="createForm">
@@ -122,7 +184,6 @@
         field_key = #{fieldKey};
     </select>
 
-
     <!--插入数据-->
     <insert id="insertForm" parameterType="java.util.Map">
         insert into ${formKey} (
@@ -146,6 +207,8 @@
         sys_service_id = #{sysField}
     </select>
 
+
+
     <resultMap id="field" type="com.sumu.form.bean.modal.FieldModal">
         <result column="field_key" property="fieldKey"></result>
         <result column="field_name" property="fieldName"></result>
@@ -160,11 +223,13 @@
         <result column="select_sort" property="sort"></result>
     </resultMap>
 
-
     <resultMap id="fieldRule" type="com.sumu.form.bean.domin.FormRuleDo">
         <result column="field_key" property="fieldKey"/>
         <result column="required" property="required"/>
         <result column="edit" property="edit"/>
     </resultMap>
+
+
+
 </mapper>
 

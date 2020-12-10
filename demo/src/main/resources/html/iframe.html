@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="http://lib.sinaapp.com/js/jquery/1.7.2/jquery.min.js"></script>
+<body>
+<div>
+    <label>自定义表单：</label>
+    <div id="tables">
+
+    </div>
+</div>
+<div>
+    <label>获取表单样式列表：</label>
+    <input id="tableKey" placeholder="表单key" value="">
+    <button onclick="getStyle()">获取</button>
+    <div id="styles">
+
+    </div>
+</div>
+<p>
+<div id="myFormTable">
+
+</div>
+</p>
+</body>
+<script type="text/javascript">
+    $.get("http://127.0.0.1:8088/demo/tables", function (data) {
+        console.log(data)
+        var html = "";
+        for (var idx in data) {
+            html += "<div>" + data[idx].tableName + "(" + data[idx].tableDesc + ")" + "</div>";
+        }
+        $("#tables").html(html);
+    });
+
+    function getStyle() {
+        var tableKey = $("#tableKey").val();
+        $.get("http://127.0.0.1:8088/demo/styles?tableName=" + tableKey, function (data) {
+            console.log(data)
+            var html = "";
+            for (var idx in data) {
+                html += "<div>" + data[idx].htmlName + "(" + data[idx].htmlDesc + ")"
+                    + " <button onclick='getStyleDetail(" + data[idx].id + ")'>获取样式</button></div>";
+            }
+            $("#styles").html(html);
+        });
+    }
+
+    function getStyleDetail(id) {
+        console.log(id)
+        $.get("http://127.0.0.1:8088/demo/style/detail?id=" + id, function (data) {
+            console.log(data)
+            $("#myFormTable").html(data);
+        });
+    }
+
+    //
+    // $.get("http://127.0.0.1:8080/form/getForm/3", function (data) {
+    //     $("#myFormTable").html(data);
+    //     //获取表单内容
+    //     $.get("http://127.0.0.1:8088/form/getFormValue", function (data) {
+    //         console.log(data)
+    //         for (var key in data) {
+    //             //遍历对象属性
+    //             console.log(key)
+    //             //遍历对象属性值
+    //             console.log(data[key])
+    //             $("#" + key).val(data[key]);
+    //             //radio
+    //             $("input[name=" + key + "][value=" + data[key] + "]").attr("checked", true);
+    //
+    //         }
+    //     });
+    // });
+</script>
+</html>

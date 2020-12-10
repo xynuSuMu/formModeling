@@ -1,5 +1,6 @@
 package com.sumu.form;
 
+import com.sumu.form.config.SpringFormConfiguration;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,14 +17,7 @@ public class FormApplication {
         SpringApplication.run(FormApplication.class, args);
     }
 
-    @Bean(
-            initMethod = "init",
-            destroyMethod = "destroy"
-    )
-    @ConditionalOnMissingBean(FormManager.class)
-    public FormManager formManager(DataSource dataSource) {
-        return new FormManager(dataSource);
-    }
+
 
 
 }

@@ -1,9 +1,21 @@
 {
   "properties": [
     {
-      "name": "spring.form.modeling.init.table",
+      "name": "spring.form.modeling.init-system-table",
       "type": "java.lang.Boolean",
-      "description": "init table",
+      "description": "init system table",
+      "defaultValue": "false"
+    },
+    {
+      "name": "spring.form.modeling.check-system-table",
+      "type": "java.lang.Boolean",
+      "description": "init system table",
+      "defaultValue": "false"
+    },
+    {
+      "name": "spring.form.modeling.update-system-table",
+      "type": "java.lang.Boolean",
+      "description": "init system table",
       "defaultValue": "false"
     }
   ]

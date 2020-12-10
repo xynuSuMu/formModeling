@@ -1,10 +1,7 @@
 package com.sumu.form.mapper;
 
 
-import com.sumu.form.bean.domin.AttributeDo;
-import com.sumu.form.bean.domin.ComponentDo;
-import com.sumu.form.bean.domin.FormDo;
-import com.sumu.form.bean.domin.FormRuleDo;
+import com.sumu.form.bean.domin.*;
 import com.sumu.form.bean.modal.ComponentModal;
 import com.sumu.form.bean.modal.FieldModal;
 import org.apache.ibatis.annotations.Param;
@@ -19,6 +16,8 @@ import java.util.Map;
  */
 public interface FormMapper {
 
+    //初始化
+    int initTable();
 
     //是否存在表单
     String isExistForm(@Param("tableName") String tableName);
@@ -69,6 +68,7 @@ public interface FormMapper {
 
     //返回数据
     Map<String, Object> getFieldValue(@Param("tableName") String tableName, @Param("sysField") String sysField);
+
 
 
 }

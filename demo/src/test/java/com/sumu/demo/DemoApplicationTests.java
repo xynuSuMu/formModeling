@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 
 @SpringBootTest
 class DemoApplicationTests {
@@ -19,16 +19,17 @@ class DemoApplicationTests {
     @Autowired
     FormService formService;
 
+    //删除表单
     @Test
     void deleteFormTable() {
         formService.deleteFormTable("form_custom_verification");
     }
 
+    //创建表单
     @Test
     void createFormTable() {
         formService.createFormTable(param());
     }
-
 
     //表单布局
     @Test
@@ -36,11 +37,39 @@ class DemoApplicationTests {
         String tableName = param().getTableName();
         StringBuffer sb = fromStyle();
         String formName = "Custom_Verification_Style_1";
-        String formDesc = "核销流程ONE";
+        String formDesc = "测试流程ONE";
         //todo:¬表单字段属性
         List<FormRuleDo> formRuleDos = fromFieldRule();
         formService.saveFormTableStyle(tableName, formName, formDesc, sb.toString(), formRuleDos);
 
+    }
+
+    @Test
+    void submitFormTable() {
+        //表单样式ID
+        String formID = "Custom_Verification_Style_1";
+        String tableName = "form_custom_verification";
+        //模拟前端表单填写内容
+        Map<String, Object> map = new HashMap<>();
+        map.put("field_account", new BigDecimal(10.02));
+        map.put("field_desc", "吃饭");
+        map.put("field_invoice", "0");
+        //uuid 充当 ¬业务唯一ID
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        formService.submitFormTable(tableName, formID, uuid, map);
+
+    }
+
+    @Test
+    void getFormContent() {
+        String formID = "Custom_Verification_Style_1";
+        String tableName = "form_custom_verification";
+        String uuid = "a33465c6509c42198b26aa6c983724a0";
+        Map<String, Object> map = formService.getFormFieldValue(tableName, formID, uuid);
+        Set<Map.Entry<String, Object>> set = map.entrySet();
+        for (Map.Entry<String, Object> entry : set) {
+            System.out.println(entry.getKey() + "->" + entry.getValue());
+        }
     }
 
     //模拟前端参数
@@ -108,7 +137,7 @@ class DemoApplicationTests {
         sb.append("<body>");
         sb.append("<script>");
         sb.append("function hello() {");
-        sb.append("console.log(\"1111xxxx\")");
+        sb.append("alert(\"模拟表单提交\")");
         sb.append("}");
         sb.append("</script>");
         sb.append("<div>");

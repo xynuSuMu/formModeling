@@ -14,8 +14,41 @@ public abstract class FormConfiguration {
     protected String jdbcUsername;
     protected String jdbcPassword;
 
+    //Properties
+
+    protected Boolean initSystemTable;
+
+    protected Boolean checkSystemTable;
+
+
+    protected Boolean updateSystemTable;
+
 
     public abstract void builder();
+
+    public Boolean getInitSystemTable() {
+        return initSystemTable;
+    }
+
+    public void setInitSystemTable(Boolean initSystemTable) {
+        this.initSystemTable = initSystemTable;
+    }
+
+    protected Boolean getCheckSystemTable() {
+        return checkSystemTable;
+    }
+
+    protected void setCheckSystemTable(Boolean checkSystemTable) {
+        this.checkSystemTable = checkSystemTable;
+    }
+
+    public Boolean getUpdateSystemTable() {
+        return updateSystemTable;
+    }
+
+    public void setUpdateSystemTable(Boolean updateSystemTable) {
+        this.updateSystemTable = updateSystemTable;
+    }
 
     public String getJdbcDriver() {
         return jdbcDriver;

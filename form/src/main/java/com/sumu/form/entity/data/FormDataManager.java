@@ -1,14 +1,12 @@
 package com.sumu.form.entity.data;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sumu.form.bean.domin.AttributeDo;
-import com.sumu.form.bean.domin.ComponentDo;
-import com.sumu.form.bean.domin.FormDo;
-import com.sumu.form.bean.domin.FormRuleDo;
+import com.sumu.form.bean.domin.*;
 import com.sumu.form.bean.modal.FieldModal;
 import com.sumu.form.bean.vo.ComponentView;
 import com.sumu.form.bean.vo.FieldView;
 import com.sumu.form.bean.vo.FormTableView;
+import com.sumu.form.config.FormConfigurationImpl;
 import com.sumu.form.enume.FieldType;
 import com.sumu.form.mapper.FormMapper;
 import org.apache.ibatis.session.SqlSession;
@@ -25,27 +23,29 @@ import java.util.Map;
  * @version 1.0
  * @date 2020-12-09 14:20
  */
-public class DataManager {
+public class FormDataManager extends AbstractDataManager {
 
 
-    private static Logger logger = LoggerFactory.getLogger(DataManager.class);
+    private Logger LOG = LoggerFactory.getLogger(FormDataManager.class);
 
-    private static FormMapper formMapper;
-    private static SqlSession sqlSession;
+    private FormMapper formMapper;
 
-    public static void setFormMapper(FormMapper formMapper, SqlSession sqlSession) {
-        DataManager.formMapper = formMapper;
-        DataManager.sqlSession = sqlSession;
+    public FormDataManager(
+            FormConfigurationImpl formConfiguration,
+            FormMapper formMapper
+    ) {
+        super(formConfiguration);
+        this.formMapper = formMapper;
     }
 
-
-    public static Boolean deleteFormTable(String tableName) {
+    public Boolean deleteFormTable(String tableName) {
         formMapper.dropTable(tableName);
+        this.getSqlSession().commit();
         return true;
     }
 
 
-    public static Boolean createFormTable(FormTableView formTableView) {
+    public Boolean createFormTable(FormTableView formTableView) {
         FormTableView param = formTableView;
         //创建
         String table = formMapper.isExistForm(param.getTableName());
@@ -99,16 +99,17 @@ public class DataManager {
             formMapper.insertComponent(componentDos);
             //创建物理表单
             formMapper.createForm(param.getTableName(), cloums, param.getTableDesc());
+            this.getSqlSession().commit();
             return true;
         } else {
-            logger.info("表单存在，请删除");
+            LOG.info("表单存在，请删除");
             return false;
         }
 
     }
 
 
-    public static List<FieldModal> getFieldModal(String tableName) {
+    public List<FieldModal> getFieldModal(String tableName) {
         List<FieldModal> list = formMapper.getFormFieldInfo(tableName);
         for (FieldModal fieldModal : list) {
             FieldType.Relation relation = FieldType.Relation.getRelation(fieldModal.getFieldType());
@@ -118,25 +119,25 @@ public class DataManager {
                                 fieldModal.getFieldKey()));
             }
         }
-        logger.info(JSONObject.toJSONString(list));
+        LOG.info(JSONObject.toJSONString(list));
         return list;
     }
 
 
-    public static Boolean saveFormTableStyle(String tableName, String formName, String formDesc, String html, List<FormRuleDo> formRuleDos) {
+    public Boolean saveFormTableStyle(String tableName, String formName, String formDesc, String html, List<FormRuleDo> formRuleDos) {
         //表单字段属性
         formMapper.insertFormTableStyle(formRuleDos);
         //表单样式
         formMapper.insertFormTable(formName, formDesc, tableName, html);
-        sqlSession.commit();
+        this.getSqlSession().commit();
         return true;
     }
 
 
-    public static Boolean submitFormTable(String tableName,
-                                          String formName,
-                                          String sysServiceId,
-                                          Map<String, Object> fieldValue) {
+    public Boolean submitFormTable(String tableName,
+                                   String formName,
+                                   String sysServiceId,
+                                   Map<String, Object> fieldValue) {
         Map<String, Object> columnMap = new HashMap<>();
         //校验该表单
         List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
@@ -157,14 +158,14 @@ public class DataManager {
         columnMap.put("sys_service_id", sysServiceId);
         //插入数据
         formMapper.insertForm(tableName, columnMap);
-
+        this.getSqlSession().commit();
         return true;
     }
 
 
-    public static Map<String, Object> getFormFieldValue(String tableName, String formName, String sysServiceId) {
+    public Map<String, Object> getFormFieldValue(String tableName, String formName, String sysServiceId) {
         Map<String, Object> map = formMapper.getFieldValue(tableName, sysServiceId);
-        System.out.println(map.toString());
+//        LOG.info(map.toString());
         //该表单保存的字段
         List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
         Map<String, Object> mapRes = new HashMap<>();
@@ -175,5 +176,7 @@ public class DataManager {
         }
         return mapRes;
     }
+
+
 
 }

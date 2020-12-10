@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sumu.form.mapper.FormInfoMapper">
+
+
+    <!--获取用户新建表单-->
+    <select id="getTableInfo" resultMap="tableInfo">
+        select id,table_name,table_desc
+         from form_sys_table_info;
+    </select>
+
+    <!--表单样式集合-->
+    <select id="getBriefTableStyle" resultMap="tableStyleInfo">
+        select
+        id,
+         html_name,
+         html_desc
+         from form_sys_html
+         where table_name = #{tableName}
+    </select>
+
+    <select id="getTableStyleHtml" resultType="java.lang.String">
+        select field_html from form_sys_html
+         where id = #{id}
+    </select>
+
+
+    <resultMap id="tableInfo" type="com.sumu.form.bean.domin.info.TableInfoDo">
+        <result column="id" property="id"/>
+        <result column="table_name" property="tableName"/>
+        <result column="table_desc" property="tableDesc"/>
+    </resultMap>
+
+    <resultMap id="tableStyleInfo" type="com.sumu.form.bean.domin.info.BriefTableStyleDo">
+        <result column="id" property="id"/>
+        <result column="html_name" property="htmlName"/>
+        <result column="html_desc" property="htmlDesc"/>
+    </resultMap>
+</mapper>

@@ -18,8 +18,8 @@ public class FormManager {
 
     private SpringFormConfiguration springFormConfiguration;
 
-    public FormManager(DataSource dataSource) {
-        this.springFormConfiguration = new SpringFormConfiguration(dataSource);
+    public FormManager(SpringFormConfiguration springFormConfiguration) {
+        this.springFormConfiguration = springFormConfiguration;
 
     }
 
