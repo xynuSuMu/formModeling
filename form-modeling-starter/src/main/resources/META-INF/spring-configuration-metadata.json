@@ -7,15 +7,21 @@
       "defaultValue": "false"
     },
     {
+      "name": "spring.form.modeling.cache",
+      "type": "java.lang.Boolean",
+      "description": "cache",
+      "defaultValue": "false"
+    },
+    {
       "name": "spring.form.modeling.check-system-table",
       "type": "java.lang.Boolean",
-      "description": "init system table",
+      "description": "check system table",
       "defaultValue": "false"
     },
     {
       "name": "spring.form.modeling.update-system-table",
       "type": "java.lang.Boolean",
-      "description": "init system table",
+      "description": "update system table",
       "defaultValue": "false"
     }
   ]

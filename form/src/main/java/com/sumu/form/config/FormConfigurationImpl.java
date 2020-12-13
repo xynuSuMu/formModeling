@@ -45,9 +45,6 @@ public class FormConfigurationImpl extends FormConfiguration {
 
     protected SqlSession sqlSession;
 
-    protected FormMapper formMapper;
-
-    protected FormInfoMapper formInfoMapper;
 
     protected FormDataManager formDataManager;
 
@@ -62,7 +59,6 @@ public class FormConfigurationImpl extends FormConfiguration {
         initDB();
         initSqlSessionFactory();
         initSqlSession();
-        initMyBatisMapper();
         initDataManager();
         initContext();
         if (initSystemTable) {
@@ -108,17 +104,12 @@ public class FormConfigurationImpl extends FormConfiguration {
     }
 
 
-    private void initMyBatisMapper() {
-        this.formMapper = this.sqlSession.getMapper(FormMapper.class);
-        this.formInfoMapper = this.sqlSession.getMapper(FormInfoMapper.class);
-    }
-
     private void initDataManager() {
         if (formDataManager == null) {
-            this.formDataManager = new FormDataManager(this, this.formMapper);
+            this.formDataManager = new FormDataManager(this);
         }
         if (formInfoDataManager == null) {
-            this.formInfoDataManager = new FormInfoDataManager(this, this.formInfoMapper);
+            this.formInfoDataManager = new FormInfoDataManager(this);
         }
     }
 
@@ -126,12 +117,12 @@ public class FormConfigurationImpl extends FormConfiguration {
     private void initContext() {
         Context.setManager(FormDataManager.class, formDataManager);
         Context.setManager(FormInfoDataManager.class, formInfoDataManager);
-        Context.setSqlSession(this.sqlSession);
+        Context.setSqlSessionFactory(this.sqlSessionFactory);
     }
 
     private void initSystemTable() {
         LOG.info("Init  system table ......");
-        formMapper.initTable();
+        //todo
         LOG.info("Init  system table finish");
     }
 

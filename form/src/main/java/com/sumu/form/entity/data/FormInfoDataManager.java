@@ -5,6 +5,7 @@ import com.sumu.form.bean.domin.info.TableInfoDo;
 import com.sumu.form.config.FormConfigurationImpl;
 import com.sumu.form.context.Context;
 import com.sumu.form.mapper.FormInfoMapper;
+import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
 
@@ -15,29 +16,38 @@ import java.util.List;
  */
 public class FormInfoDataManager extends AbstractDataManager {
 
-    FormInfoMapper formInfoMapper;
-
-    public FormInfoDataManager(FormConfigurationImpl formConfiguration,
-                               FormInfoMapper formInfoMapper
+    public FormInfoDataManager(FormConfigurationImpl formConfiguration
     ) {
         super(formConfiguration);
-        this.formInfoMapper = formInfoMapper;
     }
 
     public List<TableInfoDo> getTableInfo() {
-        return formInfoMapper.getTableInfo();
+        SqlSession sqlSession = getSqlSession();
+        try {
+            return sqlSession.getMapper(FormInfoMapper.class).getTableInfo();
+        } finally {
+            sqlSession.close();
+        }
     }
 
 
     public List<BriefTableStyleDo> getBriefTableStyle(String tableName) {
-        return formInfoMapper.getBriefTableStyle(tableName);
+        SqlSession sqlSession = getSqlSession();
+        try {
+            return sqlSession.getMapper(FormInfoMapper.class).getBriefTableStyle(tableName);
+        } finally {
+            sqlSession.close();
+        }
     }
 
     public String getTableStyleHtml(int id) {
+        SqlSession sqlSession = getSqlSession();
         try {
-            return formInfoMapper.getTableStyleHtml(id);
+            return sqlSession.getMapper(FormInfoMapper.class).getTableStyleHtml(id);
         } finally {
-            Context.getSqlSession().clearCache();
+            sqlSession.close();
         }
     }
+
+
 }

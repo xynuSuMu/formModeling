@@ -28,109 +28,130 @@ public class FormDataManager extends AbstractDataManager {
 
     private Logger LOG = LoggerFactory.getLogger(FormDataManager.class);
 
-    private FormMapper formMapper;
 
     public FormDataManager(
-            FormConfigurationImpl formConfiguration,
-            FormMapper formMapper
+            FormConfigurationImpl formConfiguration
     ) {
         super(formConfiguration);
-        this.formMapper = formMapper;
     }
 
     public Boolean deleteFormTable(String tableName) {
-        formMapper.dropTable(tableName);
-        this.getSqlSession().commit();
-        return true;
+        SqlSession sqlSession = getSqlSession();
+        FormMapper formMapper = sqlSession.getMapper(FormMapper.class);
+        try {
+            formMapper.dropTable(tableName);
+            sqlSession.commit();
+            return true;
+        } finally {
+            sqlSession.close();
+        }
     }
 
 
     public Boolean createFormTable(FormTableView formTableView) {
+        SqlSession sqlSession = getSqlSession();
+        FormMapper formMapper = sqlSession.getMapper(FormMapper.class);
         FormTableView param = formTableView;
-        //创建
-        String table = formMapper.isExistForm(param.getTableName());
-        if (table == null) {
-            List<FormDo> cloums = new ArrayList<>();
-            List<AttributeDo> list = new ArrayList<>();
-            List<ComponentDo> componentDos = new ArrayList<>();
-            for (FieldView fieldView : param.getFieldViews()) {
-                FormDo formDo = new FormDo();
-                formDo.setFieldKey(fieldView.getFieldKey());
-                formDo.setFieldName(fieldView.getFieldName());
-                //字段类型
-                FieldType.Relation relation = FieldType.Relation.getRelation(fieldView.getFieldType());
-                formDo.setFieldType(relation.getBack());
-                //小数点类型
-                if (relation.getPoint()) {
-                    formDo.setLength(fieldView.getLength() + "," + fieldView.getPoint());
-                } else {
-                    formDo.setLength(fieldView.getLength());
-                }
-                //组件类型：下拉框，复选框，单选框
-                if (relation.getComponent()) {
-                    List<ComponentView> componentViews = fieldView.getComponentViews();
-                    for (ComponentView componentView : componentViews) {
-                        ComponentDo componentDo = new ComponentDo();
-                        componentDo.setTableName(param.getTableName());
-                        componentDo.setFieldKey(fieldView.getFieldKey());
-                        componentDo.setKey(componentView.getKey());
-                        componentDo.setValue(componentView.getValue());
-                        componentDo.setSort(componentView.getSort());
-                        componentDos.add(componentDo);
+        try {
+            //创建
+            String table = formMapper.isExistForm(param.getTableName());
+            if (table == null) {
+                List<FormDo> cloums = new ArrayList<>();
+                List<AttributeDo> list = new ArrayList<>();
+                List<ComponentDo> componentDos = new ArrayList<>();
+                for (FieldView fieldView : param.getFieldViews()) {
+                    FormDo formDo = new FormDo();
+                    formDo.setFieldKey(fieldView.getFieldKey());
+                    formDo.setFieldName(fieldView.getFieldName());
+                    //字段类型
+                    FieldType.Relation relation = FieldType.Relation.getRelation(fieldView.getFieldType());
+                    formDo.setFieldType(relation.getBack());
+                    //小数点类型
+                    if (relation.getPoint()) {
+                        formDo.setLength(fieldView.getLength() + "," + fieldView.getPoint());
+                    } else {
+                        formDo.setLength(fieldView.getLength());
                     }
+                    //组件类型：下拉框，复选框，单选框
+                    if (relation.getComponent()) {
+                        List<ComponentView> componentViews = fieldView.getComponentViews();
+                        for (ComponentView componentView : componentViews) {
+                            ComponentDo componentDo = new ComponentDo();
+                            componentDo.setTableName(param.getTableName());
+                            componentDo.setFieldKey(fieldView.getFieldKey());
+                            componentDo.setKey(componentView.getKey());
+                            componentDo.setValue(componentView.getValue());
+                            componentDo.setSort(componentView.getSort());
+                            componentDos.add(componentDo);
+                        }
+                    }
+                    //全部允许为true
+                    formDo.setNull(true);
+                    cloums.add(formDo);
+                    //=========保存字段信息========
+                    AttributeDo attributeDo = new AttributeDo(param.getTableName(),
+                            fieldView.getFieldKey(),
+                            fieldView.getFieldName(),
+                            fieldView.getFieldType(),
+                            fieldView.getScopeValue(),
+                            fieldView.getRequired());
+                    list.add(attributeDo);
                 }
-                //全部允许为true
-                formDo.setNull(true);
-                cloums.add(formDo);
-                //=========保存字段信息========
-                AttributeDo attributeDo = new AttributeDo(param.getTableName(),
-                        fieldView.getFieldKey(),
-                        fieldView.getFieldName(),
-                        fieldView.getFieldType(),
-                        fieldView.getScopeValue(),
-                        fieldView.getRequired());
-                list.add(attributeDo);
+                //表单信息
+                formMapper.insertFormInfo(param.getTableName(), param.getTableDesc());
+                //字段信息
+                formMapper.insertAttribute(list);
+                //组件信息
+                formMapper.insertComponent(componentDos);
+                //创建物理表单
+                formMapper.createForm(param.getTableName(), cloums, param.getTableDesc());
+                sqlSession.commit();
+                return true;
+            } else {
+                LOG.info("表单存在，请删除");
+                return false;
             }
-            //表单信息
-            formMapper.insertFormInfo(param.getTableName(), param.getTableDesc());
-            //字段信息
-            formMapper.insertAttribute(list);
-            //组件信息
-            formMapper.insertComponent(componentDos);
-            //创建物理表单
-            formMapper.createForm(param.getTableName(), cloums, param.getTableDesc());
-            this.getSqlSession().commit();
-            return true;
-        } else {
-            LOG.info("表单存在，请删除");
-            return false;
+        } finally {
+            sqlSession.close();
         }
 
     }
 
 
     public List<FieldModal> getFieldModal(String tableName) {
-        List<FieldModal> list = formMapper.getFormFieldInfo(tableName);
-        for (FieldModal fieldModal : list) {
-            FieldType.Relation relation = FieldType.Relation.getRelation(fieldModal.getFieldType());
-            if (relation.getComponent()) {
-                fieldModal.setComponentModals(
-                        formMapper.getFieldComponentInfo(tableName,
-                                fieldModal.getFieldKey()));
+        SqlSession sqlSession = getSqlSession();
+        FormMapper formMapper = sqlSession.getMapper(FormMapper.class);
+        try {
+            List<FieldModal> list = formMapper.getFormFieldInfo(tableName);
+            for (FieldModal fieldModal : list) {
+                FieldType.Relation relation = FieldType.Relation.getRelation(fieldModal.getFieldType());
+                if (relation.getComponent()) {
+                    fieldModal.setComponentModals(
+                            formMapper.getFieldComponentInfo(tableName,
+                                    fieldModal.getFieldKey()));
+                }
             }
+            LOG.info(JSONObject.toJSONString(list));
+            return list;
+        } finally {
+            sqlSession.close();
         }
-        LOG.info(JSONObject.toJSONString(list));
-        return list;
     }
 
 
     public Boolean saveFormTableStyle(String tableName, String formName, String formDesc, String html, List<FormRuleDo> formRuleDos) {
-        //表单字段属性
-        formMapper.insertFormTableStyle(formRuleDos);
-        //表单样式
-        formMapper.insertFormTable(formName, formDesc, tableName, html);
-        this.getSqlSession().commit();
-        return true;
+        SqlSession sqlSession = getSqlSession();
+        FormMapper formMapper = sqlSession.getMapper(FormMapper.class);
+        try {
+            //表单字段属性
+            formMapper.insertFormTableStyle(formRuleDos);
+            //表单样式
+            formMapper.insertFormTable(formName, formDesc, tableName, html);
+            sqlSession.commit();
+            return true;
+        } finally {
+            sqlSession.close();
+        }
     }
 
 
@@ -138,45 +159,56 @@ public class FormDataManager extends AbstractDataManager {
                                    String formName,
                                    String sysServiceId,
                                    Map<String, Object> fieldValue) {
-        Map<String, Object> columnMap = new HashMap<>();
-        //校验该表单
-        List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
-        System.out.println(JSONObject.toJSONString(formRuleDos));
-        for (FormRuleDo formRuleDo : formRuleDos) {
-            Boolean isRequired = formRuleDo.getRequired();
-            Boolean edit = formRuleDo.getEdit();
-            //必填写
-            if (isRequired && !fieldValue.containsKey(formRuleDo.getFieldKey())) {
-                System.out.println(formRuleDo.getFieldKey() + "必填!");
-                throw new RuntimeException(formRuleDo.getFieldKey() + "必填!");
+        SqlSession sqlSession = getSqlSession();
+        FormMapper formMapper = sqlSession.getMapper(FormMapper.class);
+        try {
+            Map<String, Object> columnMap = new HashMap<>();
+            //校验该表单
+            List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
+            System.out.println(JSONObject.toJSONString(formRuleDos));
+            for (FormRuleDo formRuleDo : formRuleDos) {
+                Boolean isRequired = formRuleDo.getRequired();
+                Boolean edit = formRuleDo.getEdit();
+                //必填写
+                if (isRequired && !fieldValue.containsKey(formRuleDo.getFieldKey())) {
+                    System.out.println(formRuleDo.getFieldKey() + "必填!");
+                    throw new RuntimeException(formRuleDo.getFieldKey() + "必填!");
+                }
+                //可编辑，不可编辑的数据直接忽略
+                if (edit) {
+                    columnMap.put(formRuleDo.getFieldKey(), fieldValue.get(formRuleDo.getFieldKey()));
+                }
             }
-            //可编辑，不可编辑的数据直接忽略
-            if (edit) {
-                columnMap.put(formRuleDo.getFieldKey(), fieldValue.get(formRuleDo.getFieldKey()));
-            }
+            columnMap.put("sys_service_id", sysServiceId);
+            //插入数据
+            formMapper.insertForm(tableName, columnMap);
+            sqlSession.commit();
+            return true;
+        } finally {
+            sqlSession.close();
         }
-        columnMap.put("sys_service_id", sysServiceId);
-        //插入数据
-        formMapper.insertForm(tableName, columnMap);
-        this.getSqlSession().commit();
-        return true;
     }
 
 
     public Map<String, Object> getFormFieldValue(String tableName, String formName, String sysServiceId) {
-        Map<String, Object> map = formMapper.getFieldValue(tableName, sysServiceId);
+        SqlSession sqlSession = getSqlSession();
+        FormMapper formMapper = sqlSession.getMapper(FormMapper.class);
+        try {
+            Map<String, Object> map = formMapper.getFieldValue(tableName, sysServiceId);
 //        LOG.info(map.toString());
-        //该表单保存的字段
-        List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
-        Map<String, Object> mapRes = new HashMap<>();
-        for (FormRuleDo formRuleDo : formRuleDos) {
-            if (map.containsKey(formRuleDo.getFieldKey())) {
-                mapRes.put(formRuleDo.getFieldKey(), map.get(formRuleDo.getFieldKey()));
+            //该表单保存的字段
+            List<FormRuleDo> formRuleDos = formMapper.getFormRule(formName);
+            Map<String, Object> mapRes = new HashMap<>();
+            for (FormRuleDo formRuleDo : formRuleDos) {
+                if (map.containsKey(formRuleDo.getFieldKey())) {
+                    mapRes.put(formRuleDo.getFieldKey(), map.get(formRuleDo.getFieldKey()));
+                }
             }
+            return mapRes;
+        } finally {
+            sqlSession.close();
         }
-        return mapRes;
     }
-
 
 
 }
