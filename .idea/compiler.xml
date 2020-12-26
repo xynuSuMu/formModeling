@@ -8,14 +8,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="demo" />
         <module name="form" />
-        <module name="form-modeling" />
+        <module name="form-modeling-starter" />
       </profile>
     </annotationProcessing>
-  </component>
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="demo" options="-parameters" />
-      <module name="form" options="-parameters" />
-    </option>
+    <bytecodeTargetLevel>
+      <module name="demo" target="1.8" />
+      <module name="form" target="1.8" />
+      <module name="form-modeling" target="1.5" />
+      <module name="form-modeling-starter" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
